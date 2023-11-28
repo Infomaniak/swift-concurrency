@@ -384,14 +384,14 @@ final class UTConcurrentMap: XCTestCase {
             // All good
         }
     }
-    
+
     // MARK: - nullability of output types
 
     func testConcurrentMapNonNullableOutputTypes() async {
         // GIVEN
-        let collectionToProcess: Array<Int> = [1, 2, 3, 4, 5]
+        let collectionToProcess: [Int] = [1, 2, 3, 4, 5]
 
-        let result: Array<Int> = await collectionToProcess.concurrentMap { someInt in
+        let result: [Int] = await collectionToProcess.concurrentMap { someInt in
             return someInt + 1
         }
 
@@ -405,16 +405,16 @@ final class UTConcurrentMap: XCTestCase {
         // Expecting same behaviour as a standard lib map
         XCTAssertEqual(result.count, collectionToProcess.count)
     }
-    
+
     func testConcurrentMapNullableOutputTypes() async {
         // GIVEN
-        let collectionToProcess: Array<Int?> = [1, nil, 3, 4, nil, 5]
+        let collectionToProcess: [Int?] = [1, nil, 3, 4, nil, 5]
 
-        let result: Array<Int?> = await collectionToProcess.concurrentMap { someInt in
+        let result: [Int?] = await collectionToProcess.concurrentMap { someInt in
             guard let someInt else {
                 return nil
             }
-            
+
             return someInt + 1
         }
 
@@ -425,7 +425,7 @@ final class UTConcurrentMap: XCTestCase {
                 // Ok to find a nil here
                 return partialResult
             }
-            
+
             XCTAssertGreaterThan(item, partialResult)
             return item
         }

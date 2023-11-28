@@ -14,16 +14,15 @@
 import Foundation
 import XCTest
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension XCTestCase {
     /// Something to make async tests work on linux
-    func asyncTestWrapper(_ closure: @escaping () async throws -> Void) {
+    func asyncTestWrapper(_ closure: @escaping () async throws -> Void, function: String = #function) {
         let expectation = XCTestExpectation(description: "The async test should terminate")
         Task {
             do {
                 try await closure()
             } catch {
-                XCTFail("error catched: \(error)")
+                XCTFail("error thrown by test: \(function) error: \(error)")
             }
 
             expectation.fulfill()

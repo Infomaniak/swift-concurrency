@@ -14,7 +14,6 @@
 import Foundation
 
 /// Top level `Collection` extension is arguably more swifty, has a more native look and feel.
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension Collection {
     /// Maps a task to a collection of items concurrently. Input order __preserved__.
     ///

@@ -17,7 +17,6 @@ import Foundation
 ///
 /// This is a thread safe actor.
 /// It is backed by a fix length array, size defined at init.
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 actor ArrayAccumulator<T> {
     /// Local Error Domain
     public enum ErrorDomain: Error {
