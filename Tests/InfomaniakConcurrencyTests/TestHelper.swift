@@ -30,4 +30,9 @@ public extension XCTestCase {
 
         wait(for: [expectation], timeout: 10.0)
     }
+
+    /// Something to randomise the parallelism used in tests
+    var randomConcurrencyDepth: Int {
+        Int.random(in: 1 ..< 128)
+    }
 }

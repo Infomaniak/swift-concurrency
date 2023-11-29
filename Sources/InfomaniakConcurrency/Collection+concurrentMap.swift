@@ -27,9 +27,26 @@ public extension Collection {
     func concurrentMap<Input, Output>(
         transform: @escaping @Sendable (_ item: Input) async throws -> Output
     ) async rethrows -> [Output] where Element == Input {
+        try await concurrentMap(customConcurrency: nil, transform: transform)
+    }
+
+    /// Maps a task to a collection of items concurrently. Input order __preserved__.
+    ///
+    /// With this, you can easily __parallelize__  _async/await_ code.
+    ///
+    /// This is using an underlying `TaskQueue`, with an optimized queue depth.
+    ///
+    /// - Parameters:
+    ///   - customConcurrency: set a custom depth to override behaviour, useful for network calls.
+    ///   - transform: The operation to be applied to the `Collection` of items
+    /// - Returns: An ordered processed collection of the desired type.
+    func concurrentMap<Input, Output>(
+        customConcurrency: Int?,
+        transform: @escaping @Sendable (_ item: Input) async throws -> Output
+    ) async rethrows -> [Output] where Element == Input {
         // Our `concurrentMap` is a subset of what does `concurrentCompactMap`
         // Wrapping a closure that cannot return nil, in a closure that can, does the job.
-        let results = try await concurrentCompactMap { item in
+        let results = try await concurrentCompactMap(customConcurrency: customConcurrency) { item in
             try await transform(item)
         }
 
@@ -62,8 +79,8 @@ public extension Collection {
     /// calls.
     ///
     /// - Parameters:
-    ///   - transform: The operation to be applied to the `Collection` of items
     ///   - customConcurrency: set a custom depth to override behaviour, useful for network calls.
+    ///   - transform: The operation to be applied to the `Collection` of items
     /// - Returns: An ordered processed collection of the desired type, containing non nil values.
     func concurrentCompactMap<Input, Output>(
         customConcurrency: Int?,
