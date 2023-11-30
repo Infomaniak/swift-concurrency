@@ -15,9 +15,13 @@ import Foundation
 
 /// Top level `Collection` extension for a more native look and feel.
 public extension Collection {
-    /// Maps a task with nullable result __concurrently__, returning only non nil values. Input order __preserved__.
+    /// __Concurrently__ Maps a task with nullable result, returning only non nil values.
     ///
-    /// With this, you can easily __parallelize__  _async/await_ code.
+    /// Stops and throws at first error encountered.
+    ///
+    /// Work will be executed out of order.
+    ///
+    /// Input order __preserved__ in the output result.
     ///
     /// - Parameters:
     ///   - transform: The operation to be applied to the `Collection` of items
@@ -28,10 +32,13 @@ public extension Collection {
         try await concurrentCompactMap(customConcurrency: nil, transform: transform)
     }
 
-    /// Maps a task with nullable result __concurrently__, returning only non nil values. Input order __preserved__.
+    /// __Concurrently__ Maps a task with nullable result, returning only non nil values.
     ///
-    /// Set a `customConcurrency` value to override the optimised behaviour. You might want to set a fixed depth for network
-    /// calls.
+    /// Stops and throws at first error encountered.
+    ///
+    /// Work will be executed out of order.
+    ///
+    /// Input order __preserved__ in the output result.
     ///
     /// - Parameters:
     ///   - customConcurrency: Set a custom parallelism, 1 is serial.

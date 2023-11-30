@@ -17,7 +17,9 @@ import Foundation
 public extension Collection {
     /// __Concurrently__ loops over a `Collection` to perform a task on each element.
     ///
-    /// With this, you can easily __parallelize__  _async/await_ code.
+    /// Stops and throws at first error encountered.
+    ///
+    /// Work will be executed out of order.
     ///
     /// - Parameters:
     ///   - task: The operation to be applied to the `Element` of the collection
@@ -29,7 +31,9 @@ public extension Collection {
 
     /// __Concurrently__ loops over a `Collection` to perform a task on each element.
     ///
-    /// With this, you can easily __parallelize__  _async/await_ code.
+    /// Stops and throws at first error encountered.
+    ///
+    /// Work will be executed out of order.
     ///
     /// - Parameters:
     ///   - customConcurrency: Set a custom parallelism, 1 is serial.

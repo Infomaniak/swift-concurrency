@@ -15,9 +15,13 @@ import Foundation
 
 /// Top level `Collection` extension for a more native look and feel.
 public extension Collection {
-    /// Maps a task to a collection of items concurrently. Input order __preserved__.
+    /// __Concurrently__ Maps a task with nullable result.
     ///
-    /// With this, you can easily __parallelize__  _async/await_ code.
+    /// Stops and throws at first error encountered.
+    ///
+    /// Work will be executed out of order.
+    ///
+    /// Input order __preserved__ in the output result.
     ///
     /// - Parameters:
     ///   - transform: The operation to be applied to the `Collection` of items
@@ -28,9 +32,13 @@ public extension Collection {
         try await concurrentMap(customConcurrency: nil, transform: transform)
     }
 
-    /// Maps a task to a collection of items concurrently. Input order __preserved__.
+    /// __Concurrently__ Maps a task with nullable result.
     ///
-    /// With this, you can easily __parallelize__  _async/await_ code.
+    /// Stops and throws at first error encountered.
+    ///
+    /// Work will be executed out of order.
+    ///
+    /// Input order __preserved__ in the output result.
     ///
     /// - Parameters:
     ///   - customConcurrency: Set a custom parallelism, 1 is serial.
