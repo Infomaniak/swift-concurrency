@@ -33,6 +33,6 @@ public extension XCTestCase {
 
     /// Something to randomise the parallelism used in tests
     var randomConcurrencyDepth: Int {
-        Int.random(in: 1 ..< 128)
+        Int.random(in: 1 ..< 1024)
     }
 }

@@ -22,8 +22,8 @@ actor TaskQueue {
     /// Init function
     /// - Parameter concurrency: execution depth
     public init(concurrency: Int = 1 /* serial by default */ ) {
-        assert(concurrency > 0, "zero concurrency locks execution")
-        self.concurrency = concurrency
+        assert(concurrency > 0, "zero concurrency locks execution. Defaults to serial in production")
+        self.concurrency = (concurrency > 0) ? concurrency : 1
     }
 
     deinit {
