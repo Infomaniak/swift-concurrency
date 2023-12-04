@@ -33,3 +33,18 @@ struct ConcurrencyHeuristic {
         return optimalConcurrency
     }
 }
+
+/// Get a concurrency value to use
+/// - Parameter customConcurrency: Input concurrency to be sanitised
+/// - Returns: A parallelism value that reflects customConcurrency sanitised, or an optimised value if `customConcurrency` in nil.
+func bestConcurrency(given customConcurrency: Int?) -> Int {
+    let optimalConcurrency: Int
+    if let customConcurrency {
+        assert(customConcurrency > 0, "zero concurrency locks execution. Defaults to serial in production")
+        optimalConcurrency = (customConcurrency > 0) ? customConcurrency : 1
+    } else {
+        optimalConcurrency = ConcurrencyHeuristic().optimalConcurrency
+    }
+
+    return optimalConcurrency
+}

@@ -43,18 +43,30 @@ public extension Collection {
         task: @escaping @Sendable (_ element: Element) async throws -> Void
     ) async rethrows {
         // Level of concurrency making use of all the cores available
-        let optimalConcurrency = customConcurrency ?? ConcurrencyHeuristic().optimalConcurrency
+        let optimalConcurrency = bestConcurrency(given: customConcurrency)
 
-        // Using a TaskQueue to maintain level of concurrency.
-        let taskQueue = TaskQueue(concurrency: optimalConcurrency)
+        // Something to iterate Elements of the collection
+        var iterator = makeIterator()
 
-        // Using a TaskGroup to track completion only.
-        _ = try await withThrowingTaskGroup(of: Void.self, returning: Void.self) { taskGroup in
-            for element in self {
+        // Keep only a defined number of Tasks running in parallel with a TaskGroup
+        try await withThrowingTaskGroup(of: Void.self, returning: Void.self) { taskGroup in
+
+            // Start to enqueue the proper number of Tasks
+            for _ in 0 ..< optimalConcurrency {
+                guard let nextElement = iterator.next() else {
+                    continue
+                }
+
                 taskGroup.addTask {
-                    try await taskQueue.enqueue {
-                        try await task(element)
-                    }
+                    try await task(nextElement)
+                }
+            }
+
+            // Enqueue a Task as soon as one finishes
+            while let _ = try await taskGroup.next(),
+                  let nextElement = iterator.next() {
+                taskGroup.addTask {
+                    try await task(nextElement)
                 }
             }
 

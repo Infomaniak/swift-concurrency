@@ -41,13 +41,4 @@ An heuristic determines a degree of __parallelism__ for you, but can be customis
 
 This runs right now in production code but will be refactored to be more in line with Swift 5.9 paradigms.
 
-This do not use `Task.yield()`. Implement yielding at your own discretion depending on your own workload. 
-
-## Roadmap
-
-This library is looking forward. 
-Right now the internals are not exposed, as they will be replaced at some point.
-
-I'd like to support [Custom Actor Executors](https://github.com/apple/swift-evolution/blob/main/proposals/0392-custom-actor-executors.md) to replace current internals.
-
-I'll try to provide some backward compatibility and continue to work with Swift older than `5.9`. A situation where `Custom Actor Executors` are not available.
+This do not use `Task.yield()`. Implement yielding at your own discretion depending on your own workload.
