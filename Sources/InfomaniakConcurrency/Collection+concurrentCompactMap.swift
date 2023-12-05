@@ -49,23 +49,35 @@ public extension Collection {
         transform: @escaping @Sendable (_ item: Input) async throws -> Output?
     ) async rethrows -> [Output] where Element == Input {
         // Level of concurrency making use of all the cores available
-        let optimalConcurrency = customConcurrency ?? ConcurrencyHeuristic().optimalConcurrency
-
-        // Using a TaskQueue to maintain level of concurrency.
-        let taskQueue = TaskQueue(concurrency: optimalConcurrency)
+        let optimalConcurrency = bestConcurrency(given: customConcurrency)
 
         // Using an ArrayAccumulator to preserve original collection order.
         let accumulator = ArrayAccumulator(count: count, wrapping: Output.self)
 
-        // Using a TaskGroup to track completion only.
-        _ = try await withThrowingTaskGroup(of: Void.self, returning: Void.self) { taskGroup in
-            for (index, item) in self.enumerated() {
-                taskGroup.addTask {
-                    let result = try await taskQueue.enqueue {
-                        try await transform(item)
-                    }
+        // Something to enumerate Elements of the collection
+        var enumeratedIterator = enumerated().makeIterator()
 
-                    try await accumulator.set(item: result, atIndex: index)
+        // Keep only a defined number of Tasks running in parallel with a TaskGroup
+        try await withThrowingTaskGroup(of: Void.self, returning: Void.self) { taskGroup in
+
+            // Start to enqueue the proper number of Tasks
+            for _ in 0 ..< optimalConcurrency {
+                guard let nextEnumeration = enumeratedIterator.next() else {
+                    continue
+                }
+
+                taskGroup.addTask {
+                    let result = try await transform(nextEnumeration.1)
+                    try await accumulator.set(item: result, atIndex: nextEnumeration.0)
+                }
+            }
+
+            // Enqueue a Task as soon as one finishes
+            while let _ = try await taskGroup.next(),
+                  let nextEnumeration = enumeratedIterator.next() {
+                taskGroup.addTask {
+                    let result = try await transform(nextEnumeration.1)
+                    try await accumulator.set(item: result, atIndex: nextEnumeration.0)
                 }
             }
 

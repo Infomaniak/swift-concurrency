@@ -25,11 +25,26 @@ struct ConcurrencyHeuristic {
 
         #if canImport(OSLog)
         if #available(macOS 11.0, iOS 14.0, watchOS 7.0, tvOS 14.0, *) {
-            /// Logs the concurrency, each time this lib is performing concurrent work
+            /// Logs the concurrency, each time this heuristic is used
             Logger.concurrency.info("Using a parallelism of \(optimalConcurrency)")
         }
         #endif
 
         return optimalConcurrency
     }
+}
+
+/// Get a concurrency value to use
+/// - Parameter customConcurrency: Input concurrency to be sanitised
+/// - Returns: A parallelism value that reflects customConcurrency sanitised, or an optimised value if `customConcurrency` in nil.
+func bestConcurrency(given customConcurrency: Int?) -> Int {
+    let optimalConcurrency: Int
+    if let customConcurrency {
+        assert(customConcurrency > 0, "zero concurrency locks execution. Defaults to serial in production")
+        optimalConcurrency = (customConcurrency > 0) ? customConcurrency : 1
+    } else {
+        optimalConcurrency = ConcurrencyHeuristic().optimalConcurrency
+    }
+
+    return optimalConcurrency
 }
