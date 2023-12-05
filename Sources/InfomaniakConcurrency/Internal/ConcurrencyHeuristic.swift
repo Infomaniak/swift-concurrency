@@ -25,7 +25,7 @@ struct ConcurrencyHeuristic {
 
         #if canImport(OSLog)
         if #available(macOS 11.0, iOS 14.0, watchOS 7.0, tvOS 14.0, *) {
-            /// Logs the concurrency, each time this lib is performing concurrent work
+            /// Logs the concurrency, each time this heuristic is used
             Logger.concurrency.info("Using a parallelism of \(optimalConcurrency)")
         }
         #endif
