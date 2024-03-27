@@ -23,93 +23,13 @@ final class UTConcurrentMap: XCTestCase {
 
     // MARK: - concurrentMap
 
-    func testConcurrentMapToArray() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
+    func testConcurrentMapToArray() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
 
-        // WHEN
-        let result = await collectionToProcess.concurrentMap { item in
-            return item * 10
-        }
-
-        // THEN
-        // We check order is preserved
-        _ = result.reduce(-1) { partialResult, item in
-            XCTAssertGreaterThan(item, partialResult)
-            return item
-        }
-
-        XCTAssertEqual(result.count, collectionToProcess.count)
-    }
-
-    func testConcurrentMapToArraySlice() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
-        let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
-
-        // WHEN
-        let result = await collectionSlice.concurrentMap { item in
-            return item * 10
-        }
-
-        // THEN
-        // We check order is preserved
-        _ = result.reduce(-1) { partialResult, item in
-            XCTAssertGreaterThan(item, partialResult)
-            return item
-        }
-
-        XCTAssertEqual(result.count, collectionSlice.count)
-    }
-
-    func testConcurrentMapToDictionary() async {
-        // GIVEN
-        let key = Array(0 ... 50)
-
-        var dictionaryToProcess = [String: Int]()
-        for (key, value) in key.enumerated() {
-            dictionaryToProcess["\(key)"] = value
-        }
-
-        XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
-
-        // WHEN
-        let result = await dictionaryToProcess.concurrentMap { item in
-            let newItem = (item.key, item.value * 10)
-            return newItem
-        }
-
-        // THEN
-
-        // NOTE: Not checking for order, since this is a Dictionary
-
-        XCTAssertEqual(result.count, dictionaryToProcess.count)
-
-        for (_, tuple) in result.enumerated() {
-            let key = tuple.0
-            guard let intKey = Int(key) else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            let value = tuple.1
-            XCTAssertEqual(intKey * 10, value, "expecting the computation to have happened")
-        }
-    }
-
-    // MARK: - concurrentMap throwing sleep
-
-    func testConcurrentMapToArrayThrowingSleep() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
-
-        // WHEN
-        do {
-            let result = try await collectionToProcess.concurrentMap { item in
-                // Make the process take some short arbitrary time to complete
-                let randomShortTime = UInt64.random(in: 1 ... 100)
-                try await Task.sleep(nanoseconds: randomShortTime)
-
+            // WHEN
+            let result = await collectionToProcess.concurrentMap { item in
                 return item * 10
             }
 
@@ -121,25 +41,16 @@ final class UTConcurrentMap: XCTestCase {
             }
 
             XCTAssertEqual(result.count, collectionToProcess.count)
-
-        } catch {
-            XCTFail("Unexpected")
-            return
         }
     }
 
-    func testConcurrentMapToArraySliceThrowingSleep() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
-        let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+    func testConcurrentMapToArraySlice() {
+        asyncTestWrapper { // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+            let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
 
-        // WHEN
-        do {
-            let result = try await collectionSlice.concurrentMap { item in
-                // Make the process take some short arbitrary time to complete
-                let randomShortTime = UInt64.random(in: 1 ... 100)
-                try await Task.sleep(nanoseconds: randomShortTime)
-
+            // WHEN
+            let result = await collectionSlice.concurrentMap { item in
                 return item * 10
             }
 
@@ -151,31 +62,23 @@ final class UTConcurrentMap: XCTestCase {
             }
 
             XCTAssertEqual(result.count, collectionSlice.count)
-
-        } catch {
-            XCTFail("Unexpected")
-            return
         }
     }
 
-    func testConcurrentMapToDictionaryThrowingSleep() async {
-        // GIVEN
-        let key = Array(0 ... 50)
+    func testConcurrentMapToDictionary() {
+        asyncTestWrapper { // GIVEN
+            let key = Array(0 ... 50)
 
-        var dictionaryToProcess = [String: Int]()
-        for (key, value) in key.enumerated() {
-            dictionaryToProcess["\(key)"] = value
-        }
+            var dictionaryToProcess = [String: Int]()
+            for (key, value) in key.enumerated() {
+                dictionaryToProcess["\(key)"] = value
+            }
 
-        XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
+            XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
 
-        // WHEN
-        do {
-            let result = try await dictionaryToProcess.concurrentMap { item in
+            // WHEN
+            let result = await dictionaryToProcess.concurrentMap { item in
                 let newItem = (item.key, item.value * 10)
-                // Make the process take some short arbitrary time to complete
-                let randomShortTime = UInt64.random(in: 1 ... 100)
-                try await Task.sleep(nanoseconds: randomShortTime)
                 return newItem
             }
 
@@ -195,246 +98,369 @@ final class UTConcurrentMap: XCTestCase {
                 let value = tuple.1
                 XCTAssertEqual(intKey * 10, value, "expecting the computation to have happened")
             }
+        }
+    }
 
-        } catch {
-            XCTFail("Unexpected")
-            return
+    // MARK: - concurrentMap throwing sleep
+
+    func testConcurrentMapToArrayThrowingSleep() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+
+            // WHEN
+            do {
+                let result = try await collectionToProcess.concurrentMap { item in
+                    // Make the process take some short arbitrary time to complete
+                    let randomShortTime = UInt64.random(in: 1 ... 100)
+                    try await Task.sleep(nanoseconds: randomShortTime)
+
+                    return item * 10
+                }
+
+                // THEN
+                // We check order is preserved
+                _ = result.reduce(-1) { partialResult, item in
+                    XCTAssertGreaterThan(item, partialResult)
+                    return item
+                }
+
+                XCTAssertEqual(result.count, collectionToProcess.count)
+
+            } catch {
+                XCTFail("Unexpected")
+                return
+            }
+        }
+    }
+
+    func testConcurrentMapToArraySliceThrowingSleep() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+            let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+
+            // WHEN
+            do {
+                let result = try await collectionSlice.concurrentMap { item in
+                    // Make the process take some short arbitrary time to complete
+                    let randomShortTime = UInt64.random(in: 1 ... 100)
+                    try await Task.sleep(nanoseconds: randomShortTime)
+
+                    return item * 10
+                }
+
+                // THEN
+                // We check order is preserved
+                _ = result.reduce(-1) { partialResult, item in
+                    XCTAssertGreaterThan(item, partialResult)
+                    return item
+                }
+
+                XCTAssertEqual(result.count, collectionSlice.count)
+
+            } catch {
+                XCTFail("Unexpected")
+                return
+            }
+        }
+    }
+
+    func testConcurrentMapToDictionaryThrowingSleep() {
+        asyncTestWrapper {
+            // GIVEN
+            let key = Array(0 ... 50)
+
+            var dictionaryToProcess = [String: Int]()
+            for (key, value) in key.enumerated() {
+                dictionaryToProcess["\(key)"] = value
+            }
+
+            XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
+
+            // WHEN
+            do {
+                let result = try await dictionaryToProcess.concurrentMap { item in
+                    let newItem = (item.key, item.value * 10)
+                    // Make the process take some short arbitrary time to complete
+                    let randomShortTime = UInt64.random(in: 1 ... 100)
+                    try await Task.sleep(nanoseconds: randomShortTime)
+                    return newItem
+                }
+
+                // THEN
+
+                // NOTE: Not checking for order, since this is a Dictionary
+
+                XCTAssertEqual(result.count, dictionaryToProcess.count)
+
+                for (_, tuple) in result.enumerated() {
+                    let key = tuple.0
+                    guard let intKey = Int(key) else {
+                        XCTFail("Unexpected")
+                        return
+                    }
+
+                    let value = tuple.1
+                    XCTAssertEqual(intKey * 10, value, "expecting the computation to have happened")
+                }
+
+            } catch {
+                XCTFail("Unexpected")
+                return
+            }
         }
     }
 
     // MARK: - concurrentMap throwing computation
 
-    func testConcurrentMapToArrayThrowingComputation() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
+    func testConcurrentMapToArrayThrowingComputation() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
 
-        // WHEN
-        do {
-            let _ = try await collectionToProcess.concurrentMap { item in
-                if item == 10 {
-                    throw DomainError.some
+            // WHEN
+            do {
+                let _ = try await collectionToProcess.concurrentMap { item in
+                    if item == 10 {
+                        throw DomainError.some
+                    }
+
+                    return item * 10
                 }
 
-                return item * 10
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard case DomainError.some = error else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard case DomainError.some = error else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
-    func testConcurrentMapToArraySliceThrowingComputation() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
-        let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+    func testConcurrentMapToArraySliceThrowingComputation() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+            let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
 
-        // WHEN
-        do {
-            let _ = try await collectionSlice.concurrentMap { item in
-                if item == 10 {
-                    throw DomainError.some
+            // WHEN
+            do {
+                let _ = try await collectionSlice.concurrentMap { item in
+                    if item == 10 {
+                        throw DomainError.some
+                    }
+
+                    return item * 10
                 }
 
-                return item * 10
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard case DomainError.some = error else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard case DomainError.some = error else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
-    func testConcurrentMapToDictionaryThrowingComputation() async {
-        // GIVEN
-        let key = Array(0 ... 50)
+    func testConcurrentMapToDictionaryThrowingComputation() {
+        asyncTestWrapper {
+            // GIVEN
+            let key = Array(0 ... 50)
 
-        var dictionaryToProcess = [String: Int]()
-        for (key, value) in key.enumerated() {
-            dictionaryToProcess["\(key)"] = value
-        }
+            var dictionaryToProcess = [String: Int]()
+            for (key, value) in key.enumerated() {
+                dictionaryToProcess["\(key)"] = value
+            }
 
-        XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
+            XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
 
-        // WHEN
-        do {
-            let _ = try await dictionaryToProcess.concurrentMap { item in
-                let newItem = (item.key, item.value * 10)
+            // WHEN
+            do {
+                let _ = try await dictionaryToProcess.concurrentMap { item in
+                    let newItem = (item.key, item.value * 10)
 
-                if item.value == 10 {
-                    throw DomainError.some
+                    if item.value == 10 {
+                        throw DomainError.some
+                    }
+
+                    return newItem
                 }
 
-                return newItem
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard case DomainError.some = error else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard case DomainError.some = error else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
     // MARK: - concurrentMap throwing cancellation
 
-    func testConcurrentMapToArrayThrowingCancellation() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
+    func testConcurrentMapToArrayThrowingCancellation() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
 
-        // WHEN
-        do {
-            let _ = try await collectionToProcess.concurrentMap { item in
-                if item == 10 {
-                    throw CancellationError()
+            // WHEN
+            do {
+                let _ = try await collectionToProcess.concurrentMap { item in
+                    if item == 10 {
+                        throw CancellationError()
+                    }
+
+                    return item * 10
                 }
 
-                return item * 10
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard error is CancellationError else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard error is CancellationError else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
-    func testConcurrentMapToArraySliceThrowingCancellation() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
-        let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+    func testConcurrentMapToArraySliceThrowingCancellation() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+            let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
 
-        // WHEN
-        do {
-            let _ = try await collectionSlice.concurrentMap { item in
-                if item == 10 {
-                    throw CancellationError()
+            // WHEN
+            do {
+                let _ = try await collectionSlice.concurrentMap { item in
+                    if item == 10 {
+                        throw CancellationError()
+                    }
+
+                    return item * 10
                 }
 
-                return item * 10
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard error is CancellationError else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard error is CancellationError else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
-    func testConcurrentMapToDictionaryThrowingCancellation() async {
-        // GIVEN
-        let key = Array(0 ... 50)
+    func testConcurrentMapToDictionaryThrowingCancellation() {
+        asyncTestWrapper {
+            // GIVEN
+            let key = Array(0 ... 50)
 
-        var dictionaryToProcess = [String: Int]()
-        for (key, value) in key.enumerated() {
-            dictionaryToProcess["\(key)"] = value
-        }
+            var dictionaryToProcess = [String: Int]()
+            for (key, value) in key.enumerated() {
+                dictionaryToProcess["\(key)"] = value
+            }
 
-        XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
+            XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
 
-        // WHEN
-        do {
-            let _ = try await dictionaryToProcess.concurrentMap { item in
-                let newItem = (item.key, item.value * 10)
+            // WHEN
+            do {
+                let _ = try await dictionaryToProcess.concurrentMap { item in
+                    let newItem = (item.key, item.value * 10)
 
-                if item.value == 10 {
-                    throw CancellationError()
+                    if item.value == 10 {
+                        throw CancellationError()
+                    }
+
+                    return newItem
                 }
 
-                return newItem
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard error is CancellationError else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard error is CancellationError else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
     // MARK: - nullability of output types
 
-    func testConcurrentMapNonNullableOutputTypes() async {
-        // GIVEN
-        let collectionToProcess: [Int] = [1, 2, 3, 4, 5]
+    func testConcurrentMapNonNullableOutputTypes() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess: [Int] = [1, 2, 3, 4, 5]
 
-        let result: [Int] = await collectionToProcess.concurrentMap { someInt in
-            return someInt + 1
+            let result: [Int] = await collectionToProcess.concurrentMap { someInt in
+                return someInt + 1
+            }
+
+            // THEN
+            // We check order is preserved
+            _ = result.reduce(-1) { partialResult, item in
+                XCTAssertGreaterThan(item, partialResult)
+                return item
+            }
+
+            // Expecting same behaviour as a standard lib map
+            XCTAssertEqual(result.count, collectionToProcess.count)
         }
-
-        // THEN
-        // We check order is preserved
-        _ = result.reduce(-1) { partialResult, item in
-            XCTAssertGreaterThan(item, partialResult)
-            return item
-        }
-
-        // Expecting same behaviour as a standard lib map
-        XCTAssertEqual(result.count, collectionToProcess.count)
     }
 
-    func testConcurrentMapNullableOutputTypes() async {
-        // GIVEN
-        let collectionToProcess: [Int?] = [1, nil, 3, 4, nil, 5]
+    func testConcurrentMapNullableOutputTypes() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess: [Int?] = [1, nil, 3, 4, nil, 5]
 
-        let result: [Int?] = await collectionToProcess.concurrentMap { someInt in
-            guard let someInt else {
-                return nil
+            let result: [Int?] = await collectionToProcess.concurrentMap { someInt in
+                guard let someInt else {
+                    return nil
+                }
+
+                return someInt + 1
             }
 
-            return someInt + 1
-        }
+            // THEN
+            // We check order is preserved
+            _ = result.reduce(-1) { partialResult, item in
+                guard let item else {
+                    // Ok to find a nil here
+                    return partialResult
+                }
 
-        // THEN
-        // We check order is preserved
-        _ = result.reduce(-1) { partialResult, item in
-            guard let item else {
-                // Ok to find a nil here
-                return partialResult
+                XCTAssertGreaterThan(item, partialResult)
+                return item
             }
 
-            XCTAssertGreaterThan(item, partialResult)
-            return item
+            // Expecting same behaviour as a standard lib map, preserving nullable in result.
+            XCTAssertEqual(result.count, collectionToProcess.count)
         }
-
-        // Expecting same behaviour as a standard lib map, preserving nullable in result.
-        XCTAssertEqual(result.count, collectionToProcess.count)
     }
 }
 
@@ -447,93 +473,13 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
 
     // MARK: - concurrentMap
 
-    func testConcurrentMapToArray() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
+    func testConcurrentMapToArray() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
 
-        // WHEN
-        let result = await collectionToProcess.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
-            return item * 10
-        }
-
-        // THEN
-        // We check order is preserved
-        _ = result.reduce(-1) { partialResult, item in
-            XCTAssertGreaterThan(item, partialResult)
-            return item
-        }
-
-        XCTAssertEqual(result.count, collectionToProcess.count)
-    }
-
-    func testConcurrentMapToArraySlice() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
-        let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
-
-        // WHEN
-        let result = await collectionSlice.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
-            return item * 10
-        }
-
-        // THEN
-        // We check order is preserved
-        _ = result.reduce(-1) { partialResult, item in
-            XCTAssertGreaterThan(item, partialResult)
-            return item
-        }
-
-        XCTAssertEqual(result.count, collectionSlice.count)
-    }
-
-    func testConcurrentMapToDictionary() async {
-        // GIVEN
-        let key = Array(0 ... 50)
-
-        var dictionaryToProcess = [String: Int]()
-        for (key, value) in key.enumerated() {
-            dictionaryToProcess["\(key)"] = value
-        }
-
-        XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
-
-        // WHEN
-        let result = await dictionaryToProcess.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
-            let newItem = (item.key, item.value * 10)
-            return newItem
-        }
-
-        // THEN
-
-        // NOTE: Not checking for order, since this is a Dictionary
-
-        XCTAssertEqual(result.count, dictionaryToProcess.count)
-
-        for (_, tuple) in result.enumerated() {
-            let key = tuple.0
-            guard let intKey = Int(key) else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            let value = tuple.1
-            XCTAssertEqual(intKey * 10, value, "expecting the computation to have happened")
-        }
-    }
-
-    // MARK: - concurrentMap throwing sleep
-
-    func testConcurrentMapToArrayThrowingSleep() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
-
-        // WHEN
-        do {
-            let result = try await collectionToProcess.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
-                // Make the process take some short arbitrary time to complete
-                let randomShortTime = UInt64.random(in: 1 ... 100)
-                try await Task.sleep(nanoseconds: randomShortTime)
-
+            // WHEN
+            let result = await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
                 return item * 10
             }
 
@@ -545,25 +491,17 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
             }
 
             XCTAssertEqual(result.count, collectionToProcess.count)
-
-        } catch {
-            XCTFail("Unexpected")
-            return
         }
     }
 
-    func testConcurrentMapToArraySliceThrowingSleep() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
-        let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+    func testConcurrentMapToArraySlice() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+            let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
 
-        // WHEN
-        do {
-            let result = try await collectionSlice.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
-                // Make the process take some short arbitrary time to complete
-                let randomShortTime = UInt64.random(in: 1 ... 100)
-                try await Task.sleep(nanoseconds: randomShortTime)
-
+            // WHEN
+            let result = await collectionSlice.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
                 return item * 10
             }
 
@@ -575,31 +513,24 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
             }
 
             XCTAssertEqual(result.count, collectionSlice.count)
-
-        } catch {
-            XCTFail("Unexpected")
-            return
         }
     }
 
-    func testConcurrentMapToDictionaryThrowingSleep() async {
-        // GIVEN
-        let key = Array(0 ... 50)
+    func testConcurrentMapToDictionary() {
+        asyncTestWrapper {
+            // GIVEN
+            let key = Array(0 ... 50)
 
-        var dictionaryToProcess = [String: Int]()
-        for (key, value) in key.enumerated() {
-            dictionaryToProcess["\(key)"] = value
-        }
+            var dictionaryToProcess = [String: Int]()
+            for (key, value) in key.enumerated() {
+                dictionaryToProcess["\(key)"] = value
+            }
 
-        XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
+            XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
 
-        // WHEN
-        do {
-            let result = try await dictionaryToProcess.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
+            // WHEN
+            let result = await dictionaryToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
                 let newItem = (item.key, item.value * 10)
-                // Make the process take some short arbitrary time to complete
-                let randomShortTime = UInt64.random(in: 1 ... 100)
-                try await Task.sleep(nanoseconds: randomShortTime)
                 return newItem
             }
 
@@ -619,245 +550,368 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
                 let value = tuple.1
                 XCTAssertEqual(intKey * 10, value, "expecting the computation to have happened")
             }
+        }
+    }
 
-        } catch {
-            XCTFail("Unexpected")
-            return
+    // MARK: - concurrentMap throwing sleep
+
+    func testConcurrentMapToArrayThrowingSleep() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+
+            // WHEN
+            do {
+                let result = try await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    // Make the process take some short arbitrary time to complete
+                    let randomShortTime = UInt64.random(in: 1 ... 100)
+                    try await Task.sleep(nanoseconds: randomShortTime)
+
+                    return item * 10
+                }
+
+                // THEN
+                // We check order is preserved
+                _ = result.reduce(-1) { partialResult, item in
+                    XCTAssertGreaterThan(item, partialResult)
+                    return item
+                }
+
+                XCTAssertEqual(result.count, collectionToProcess.count)
+
+            } catch {
+                XCTFail("Unexpected")
+                return
+            }
+        }
+    }
+
+    func testConcurrentMapToArraySliceThrowingSleep() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+            let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+
+            // WHEN
+            do {
+                let result = try await collectionSlice.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    // Make the process take some short arbitrary time to complete
+                    let randomShortTime = UInt64.random(in: 1 ... 100)
+                    try await Task.sleep(nanoseconds: randomShortTime)
+
+                    return item * 10
+                }
+
+                // THEN
+                // We check order is preserved
+                _ = result.reduce(-1) { partialResult, item in
+                    XCTAssertGreaterThan(item, partialResult)
+                    return item
+                }
+
+                XCTAssertEqual(result.count, collectionSlice.count)
+
+            } catch {
+                XCTFail("Unexpected")
+                return
+            }
+        }
+    }
+
+    func testConcurrentMapToDictionaryThrowingSleep() {
+        asyncTestWrapper {
+            // GIVEN
+            let key = Array(0 ... 50)
+
+            var dictionaryToProcess = [String: Int]()
+            for (key, value) in key.enumerated() {
+                dictionaryToProcess["\(key)"] = value
+            }
+
+            XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
+
+            // WHEN
+            do {
+                let result = try await dictionaryToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    let newItem = (item.key, item.value * 10)
+                    // Make the process take some short arbitrary time to complete
+                    let randomShortTime = UInt64.random(in: 1 ... 100)
+                    try await Task.sleep(nanoseconds: randomShortTime)
+                    return newItem
+                }
+
+                // THEN
+
+                // NOTE: Not checking for order, since this is a Dictionary
+
+                XCTAssertEqual(result.count, dictionaryToProcess.count)
+
+                for (_, tuple) in result.enumerated() {
+                    let key = tuple.0
+                    guard let intKey = Int(key) else {
+                        XCTFail("Unexpected")
+                        return
+                    }
+
+                    let value = tuple.1
+                    XCTAssertEqual(intKey * 10, value, "expecting the computation to have happened")
+                }
+
+            } catch {
+                XCTFail("Unexpected")
+                return
+            }
         }
     }
 
     // MARK: - concurrentMap throwing computation
 
-    func testConcurrentMapToArrayThrowingComputation() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
+    func testConcurrentMapToArrayThrowingComputation() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
 
-        // WHEN
-        do {
-            let _ = try await collectionToProcess.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
-                if item == 10 {
-                    throw DomainError.some
+            // WHEN
+            do {
+                let _ = try await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    if item == 10 {
+                        throw DomainError.some
+                    }
+
+                    return item * 10
                 }
 
-                return item * 10
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard case DomainError.some = error else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard case DomainError.some = error else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
-    func testConcurrentMapToArraySliceThrowingComputation() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
-        let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+    func testConcurrentMapToArraySliceThrowingComputation() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+            let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
 
-        // WHEN
-        do {
-            let _ = try await collectionSlice.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
-                if item == 10 {
-                    throw DomainError.some
+            // WHEN
+            do {
+                let _ = try await collectionSlice.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    if item == 10 {
+                        throw DomainError.some
+                    }
+
+                    return item * 10
                 }
 
-                return item * 10
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard case DomainError.some = error else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard case DomainError.some = error else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
-    func testConcurrentMapToDictionaryThrowingComputation() async {
-        // GIVEN
-        let key = Array(0 ... 50)
+    func testConcurrentMapToDictionaryThrowingComputation() {
+        asyncTestWrapper {
+            // GIVEN
+            let key = Array(0 ... 50)
 
-        var dictionaryToProcess = [String: Int]()
-        for (key, value) in key.enumerated() {
-            dictionaryToProcess["\(key)"] = value
-        }
+            var dictionaryToProcess = [String: Int]()
+            for (key, value) in key.enumerated() {
+                dictionaryToProcess["\(key)"] = value
+            }
 
-        XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
+            XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
 
-        // WHEN
-        do {
-            let _ = try await dictionaryToProcess.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
-                let newItem = (item.key, item.value * 10)
+            // WHEN
+            do {
+                let _ = try await dictionaryToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    let newItem = (item.key, item.value * 10)
 
-                if item.value == 10 {
-                    throw DomainError.some
+                    if item.value == 10 {
+                        throw DomainError.some
+                    }
+
+                    return newItem
                 }
 
-                return newItem
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard case DomainError.some = error else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard case DomainError.some = error else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
     // MARK: - concurrentMap throwing cancellation
 
-    func testConcurrentMapToArrayThrowingCancellation() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
+    func testConcurrentMapToArrayThrowingCancellation() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
 
-        // WHEN
-        do {
-            let _ = try await collectionToProcess.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
-                if item == 10 {
-                    throw CancellationError()
+            // WHEN
+            do {
+                let _ = try await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    if item == 10 {
+                        throw CancellationError()
+                    }
+
+                    return item * 10
                 }
 
-                return item * 10
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard error is CancellationError else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard error is CancellationError else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
-    func testConcurrentMapToArraySliceThrowingCancellation() async {
-        // GIVEN
-        let collectionToProcess = Array(0 ... 50)
-        let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+    func testConcurrentMapToArraySliceThrowingCancellation() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+            let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
 
-        // WHEN
-        do {
-            let _ = try await collectionSlice.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
-                if item == 10 {
-                    throw CancellationError()
+            // WHEN
+            do {
+                let _ = try await collectionSlice.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    if item == 10 {
+                        throw CancellationError()
+                    }
+
+                    return item * 10
                 }
 
-                return item * 10
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard error is CancellationError else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard error is CancellationError else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
-    func testConcurrentMapToDictionaryThrowingCancellation() async {
-        // GIVEN
-        let key = Array(0 ... 50)
+    func testConcurrentMapToDictionaryThrowingCancellation() {
+        asyncTestWrapper {
+            // GIVEN
+            let key = Array(0 ... 50)
 
-        var dictionaryToProcess = [String: Int]()
-        for (key, value) in key.enumerated() {
-            dictionaryToProcess["\(key)"] = value
-        }
+            var dictionaryToProcess = [String: Int]()
+            for (key, value) in key.enumerated() {
+                dictionaryToProcess["\(key)"] = value
+            }
 
-        XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
+            XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
 
-        // WHEN
-        do {
-            let _ = try await dictionaryToProcess.concurrentMap(customConcurrency: randomConcurrencyDepth) { item in
-                let newItem = (item.key, item.value * 10)
+            // WHEN
+            do {
+                let _ = try await dictionaryToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    let newItem = (item.key, item.value * 10)
 
-                if item.value == 10 {
-                    throw CancellationError()
+                    if item.value == 10 {
+                        throw CancellationError()
+                    }
+
+                    return newItem
                 }
 
-                return newItem
+                // THEN
+                XCTFail("Expected to throw")
+
+            } catch {
+                guard error is CancellationError else {
+                    XCTFail("Unexpected")
+                    return
+                }
+
+                // All good
             }
-
-            // THEN
-            XCTFail("Expected to throw")
-
-        } catch {
-            guard error is CancellationError else {
-                XCTFail("Unexpected")
-                return
-            }
-
-            // All good
         }
     }
 
     // MARK: - nullability of output types
 
-    func testConcurrentMapNonNullableOutputTypes() async {
-        // GIVEN
-        let collectionToProcess: [Int] = [1, 2, 3, 4, 5]
+    func testConcurrentMapNonNullableOutputTypes() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess: [Int] = [1, 2, 3, 4, 5]
 
-        let result: [Int] = await collectionToProcess.concurrentMap(customConcurrency: randomConcurrencyDepth) { someInt in
-            return someInt + 1
+            let result: [Int] = await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { someInt in
+                return someInt + 1
+            }
+
+            // THEN
+            // We check order is preserved
+            _ = result.reduce(-1) { partialResult, item in
+                XCTAssertGreaterThan(item, partialResult)
+                return item
+            }
+
+            // Expecting same behaviour as a standard lib map
+            XCTAssertEqual(result.count, collectionToProcess.count)
         }
-
-        // THEN
-        // We check order is preserved
-        _ = result.reduce(-1) { partialResult, item in
-            XCTAssertGreaterThan(item, partialResult)
-            return item
-        }
-
-        // Expecting same behaviour as a standard lib map
-        XCTAssertEqual(result.count, collectionToProcess.count)
     }
 
-    func testConcurrentMapNullableOutputTypes() async {
-        // GIVEN
-        let collectionToProcess: [Int?] = [1, nil, 3, 4, nil, 5]
+    func testConcurrentMapNullableOutputTypes() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess: [Int?] = [1, nil, 3, 4, nil, 5]
 
-        let result: [Int?] = await collectionToProcess.concurrentMap(customConcurrency: randomConcurrencyDepth) { someInt in
-            guard let someInt else {
-                return nil
+            let result: [Int?] = await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { someInt in
+                guard let someInt else {
+                    return nil
+                }
+
+                return someInt + 1
             }
 
-            return someInt + 1
-        }
+            // THEN
+            // We check order is preserved
+            _ = result.reduce(-1) { partialResult, item in
+                guard let item else {
+                    // Ok to find a nil here
+                    return partialResult
+                }
 
-        // THEN
-        // We check order is preserved
-        _ = result.reduce(-1) { partialResult, item in
-            guard let item else {
-                // Ok to find a nil here
-                return partialResult
+                XCTAssertGreaterThan(item, partialResult)
+                return item
             }
 
-            XCTAssertGreaterThan(item, partialResult)
-            return item
+            // Expecting same behaviour as a standard lib map, preserving nullable in result.
+            XCTAssertEqual(result.count, collectionToProcess.count)
         }
-
-        // Expecting same behaviour as a standard lib map, preserving nullable in result.
-        XCTAssertEqual(result.count, collectionToProcess.count)
     }
 }
