@@ -15,7 +15,7 @@ import Foundation
 
 /// Top level `Collection` extension for a more native look and feel.
 public extension Collection {
-    /// __Concurrently__ Maps a task with nullable result.
+    /// __Concurrently__ Maps an async task with nullable result.
     ///
     /// Stops and throws at first error encountered.
     ///
@@ -32,7 +32,7 @@ public extension Collection {
         try await concurrentMap(customConcurrency: nil, transform: transform)
     }
 
-    /// __Concurrently__ Maps a task with nullable result.
+    /// __Concurrently__ Maps an async task with nullable result.
     ///
     /// Stops and throws at first error encountered.
     ///
