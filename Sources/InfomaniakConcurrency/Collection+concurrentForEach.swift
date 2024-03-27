@@ -15,7 +15,7 @@ import Foundation
 
 /// Top level `Collection` extension for a more native look and feel.
 public extension Collection {
-    /// __Concurrently__ loops over a `Collection` to perform a task on each element.
+    /// __Concurrently__ loops over a `Collection` to perform an async task on each element.
     ///
     /// Stops and throws at first error encountered.
     ///
@@ -29,7 +29,7 @@ public extension Collection {
         try await concurrentForEach(customConcurrency: nil, task: task)
     }
 
-    /// __Concurrently__ loops over a `Collection` to perform a task on each element.
+    /// __Concurrently__ loops over a `Collection` to perform an async task on each element.
     ///
     /// Stops and throws at first error encountered.
     ///

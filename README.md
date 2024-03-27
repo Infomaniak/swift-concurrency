@@ -35,6 +35,18 @@ Well tested. Used in production across Infomaniak's apps written in Swift.
     - Work will be executed out of order.
     - Input order __preserved__ in the output result.
 
+- `asyncForEach`
+    - Shorthand for `concurrentForEach(customConcurrency: 1)`
+    - __Serially__ loops over a `Collection` to perform an async task on each element.
+         
+- `asyncMap` 
+    - Shorthand for `concurrentMap(customConcurrency: 1)`
+    - __Serially__ Maps an async task with nullable result.
+    
+- `asyncCompactMap`
+    - Shorthand for `concurrentCompactMap(customConcurrency: 1)`
+    - __Serially__ Maps an async task with nullable result, returning only non nil values
+
 ## Behaviour
 
 An heuristic determines a degree of __parallelism__ for you, but can be customised. We recommend sticking to a fixed parallelism (1-4ish) when working with network calls.
