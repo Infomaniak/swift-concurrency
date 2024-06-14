@@ -15,17 +15,12 @@ import Foundation
 
 /// Top level `Collection` extension for a more native look and feel.
 public extension Collection {
-    /// __Serially__ Maps an async task with nullable result.
+    /// __Serially__ reduce a collection with an async closure
     ///
     /// Requires `Result` to be sendable
     ///
     /// - Parameters:
-    ///   - transform: The operation to be applied to the `Collection` of items
-    /// - Returns: An ordered processed collection of the desired type.
-
-    /// __Serially__ reduce a collection with an async closure
-    /// - Parameters:
-    ///   - initialResult: first value to beggin the reduce operation
+    ///   - initialResult: first value to begin the reduce operation
     ///   - nextPartialResult: partial reduce closure
     /// - Returns: A generic Result post reduce operation
     func asyncReduce<Result: Sendable>(
@@ -44,7 +39,7 @@ public extension Collection {
     /// Requires `Result` to be sendable
     ///
     /// - Parameters:
-    ///   - initialResult: first value to beggin the reduce operation
+    ///   - initialResult: first value to begin the reduce operation
     ///   - updateAccumulatingResult: accumulating closure
     /// - Returns: A generic Result post reduce operation
     func asyncReduce<Result: Sendable>(
