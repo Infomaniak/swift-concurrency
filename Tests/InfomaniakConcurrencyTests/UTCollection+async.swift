@@ -14,6 +14,10 @@
 import InfomaniakConcurrency
 import XCTest
 
+enum SomeError: Error {
+    case some
+}
+
 // MARK: - UTCollection async -
 
 /// Minimal testing of the `async` functions, that are shorthands for the `concurrent` functions that are well tested
@@ -63,9 +67,9 @@ final class UTCollection_async: XCTestCase {
             XCTAssertEqual(result.count, collectionToProcess.count)
         }
     }
-    
+
     // MARK: - asyncCompactMap
-    
+
     func testAsyncCompactMap() {
         asyncTestWrapper {
             // GIVEN
@@ -88,6 +92,114 @@ final class UTCollection_async: XCTestCase {
             }
 
             XCTAssertEqual(result.count, collectionToProcess.count - 6)
+        }
+    }
+
+    // MARK: - asyncReduce
+
+    func testAsyncReduce() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+
+            // WHEN
+            let asyncSum = try await collectionToProcess.asyncReduce(0) { partialResult, item in
+                // We arbitrarily remove elements
+                if item % 10 == 0 {
+                    try await Task.sleep(nanoseconds: 100_000_000)
+                }
+
+                return partialResult + item
+            }
+
+            // THEN
+            let sum = collectionToProcess.reduce(0) { $0 + $1 }
+            XCTAssertEqual(sum, asyncSum, "Expecting a naive sum to equal the async one")
+        }
+    }
+
+    func testAsyncReduceThrow() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+
+            // WHEN
+            do {
+                let asyncSum = try await collectionToProcess.asyncReduce(0) { partialResult, item in
+                    // We arbitrarily remove elements
+                    if item % 10 == 0 {
+                        throw SomeError.some
+                    }
+
+                    return partialResult + item
+                }
+
+                XCTFail("expected to throw, got \(asyncSum) instead")
+            }
+
+            // THEN
+            catch {
+                guard let someError = error as? SomeError,
+                      someError == .some else {
+                    XCTFail("unexpected error: \(error)")
+                    return
+                }
+                // all good
+            }
+        }
+    }
+
+    func testAsyncReduceInto() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+
+            // WHEN
+            let seed = 0
+            let asyncSum = try await collectionToProcess.asyncReduce(into: seed) { partialResult, item in
+                // We arbitrarily remove elements
+                if item % 10 == 0 {
+                    try await Task.sleep(nanoseconds: 100_000_000)
+                }
+
+                partialResult = partialResult + item
+            }
+
+            // THEN
+            let sum = collectionToProcess.reduce(0) { $0 + $1 }
+            XCTAssertEqual(sum, asyncSum, "Expecting a naive sum to equal the async one")
+        }
+    }
+
+    func testAsyncReduceIntoThrow() {
+        asyncTestWrapper {
+            // GIVEN
+            let collectionToProcess = Array(0 ... 50)
+
+            // WHEN
+            do {
+                let seed = 0
+                let asyncSum = try await collectionToProcess.asyncReduce(into: seed) { partialResult, item in
+                    // We arbitrarily remove elements
+                    if item % 10 == 0 {
+                        throw SomeError.some
+                    }
+
+                    partialResult = partialResult + item
+                }
+
+                XCTFail("expected to throw, got \(asyncSum) instead")
+            }
+
+            // THEN
+            catch {
+                guard let someError = error as? SomeError,
+                      someError == .some else {
+                    XCTFail("unexpected error: \(error)")
+                    return
+                }
+                // all good
+            }
         }
     }
 }
