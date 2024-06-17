@@ -12,7 +12,7 @@ This library does __not__ aim at bringing an asynchronous version of `map`, `for
  
 It is Minimalist by essence, it only provides top level functions like `map` and `forEach`. 
 
-This package supports any first party Swift platform, from swift 5.6 and up. This is actually useful on Linux.
+This package supports any first party Swift platform, from swift 5.7 and up. This is actually useful on Linux.
 
 Well tested. Used in production across Infomaniak's apps written in Swift.
 
@@ -42,10 +42,13 @@ Well tested. Used in production across Infomaniak's apps written in Swift.
 - `asyncMap` 
     - Shorthand for `concurrentMap(customConcurrency: 1)`
     - __Serially__ Maps an async task with nullable result.
-    
+
 - `asyncCompactMap`
     - Shorthand for `concurrentCompactMap(customConcurrency: 1)`
     - __Serially__ Maps an async task with nullable result, returning only non nil values
+
+- `asyncReduce`
+    - __Serially__ reduce a collection with an async closure
 
 ## Behaviour
 
