@@ -18,7 +18,7 @@ import OSLog
 @available(macOS 11.0, iOS 14.0, watchOS 7.0, tvOS 14.0, *)
 extension Logger {
     /// Name of this system
-    private static var subsystem = "InfomaniakConcurrency"
+    private static let subsystem = "InfomaniakConcurrency"
 
     /// Log channel for the concurrency used
     static let concurrency = Logger(subsystem: subsystem, category: subsystem)

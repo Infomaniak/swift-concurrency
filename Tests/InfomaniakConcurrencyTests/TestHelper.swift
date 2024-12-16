@@ -16,7 +16,7 @@ import XCTest
 
 public extension XCTestCase {
     /// Something to make async tests work on linux
-    func asyncTestWrapper(_ closure: @escaping () async throws -> Void, function: String = #function) {
+    func asyncTestWrapper(_ closure: @escaping @Sendable () async throws -> Void, function: String = #function) {
         let expectation = XCTestExpectation(description: "The async test should terminate")
         Task {
             do {
