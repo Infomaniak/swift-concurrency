@@ -477,9 +477,10 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
-            let result = await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+            let result = await collectionToProcess.concurrentMap(customConcurrency: randomConcurrency) { item in
                 return item * 10
             }
 
@@ -499,9 +500,10 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
             let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
-            let result = await collectionSlice.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+            let result = await collectionSlice.concurrentMap(customConcurrency: randomConcurrency) { item in
                 return item * 10
             }
 
@@ -520,6 +522,7 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let key = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             var dictionaryToProcess = [String: Int]()
             for (key, value) in key.enumerated() {
@@ -529,7 +532,7 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
             XCTAssertEqual(dictionaryToProcess.count, 51, "sanity check precond")
 
             // WHEN
-            let result = await dictionaryToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+            let result = await dictionaryToProcess.concurrentMap(customConcurrency: randomConcurrency) { item in
                 let newItem = (item.key, item.value * 10)
                 return newItem
             }
@@ -559,10 +562,11 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
-                let result = try await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                let result = try await collectionToProcess.concurrentMap(customConcurrency: randomConcurrency) { item in
                     // Make the process take some short arbitrary time to complete
                     let randomShortTime = UInt64.random(in: 1 ... 100)
                     try await Task.sleep(nanoseconds: randomShortTime)
@@ -591,10 +595,11 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
             let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
-                let result = try await collectionSlice.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                let result = try await collectionSlice.concurrentMap(customConcurrency: randomConcurrency) { item in
                     // Make the process take some short arbitrary time to complete
                     let randomShortTime = UInt64.random(in: 1 ... 100)
                     try await Task.sleep(nanoseconds: randomShortTime)
@@ -622,6 +627,7 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let key = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             var dictionaryToProcess = [String: Int]()
             for (key, value) in key.enumerated() {
@@ -632,7 +638,7 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
 
             // WHEN
             do {
-                let result = try await dictionaryToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                let result = try await dictionaryToProcess.concurrentMap(customConcurrency: randomConcurrency) { item in
                     let newItem = (item.key, item.value * 10)
                     // Make the process take some short arbitrary time to complete
                     let randomShortTime = UInt64.random(in: 1 ... 100)
@@ -670,10 +676,11 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
-                let _ = try await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                let _ = try await collectionToProcess.concurrentMap(customConcurrency: randomConcurrency) { item in
                     if item == 10 {
                         throw DomainError.some
                     }
@@ -700,10 +707,11 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
             let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
-                let _ = try await collectionSlice.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                let _ = try await collectionSlice.concurrentMap(customConcurrency: randomConcurrency) { item in
                     if item == 10 {
                         throw DomainError.some
                     }
@@ -729,6 +737,7 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let key = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             var dictionaryToProcess = [String: Int]()
             for (key, value) in key.enumerated() {
@@ -739,7 +748,7 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
 
             // WHEN
             do {
-                let _ = try await dictionaryToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                let _ = try await dictionaryToProcess.concurrentMap(customConcurrency: randomConcurrency) { item in
                     let newItem = (item.key, item.value * 10)
 
                     if item.value == 10 {
@@ -769,10 +778,11 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
-                let _ = try await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                let _ = try await collectionToProcess.concurrentMap(customConcurrency: randomConcurrency) { item in
                     if item == 10 {
                         throw CancellationError()
                     }
@@ -799,10 +809,11 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
             let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
-                let _ = try await collectionSlice.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                let _ = try await collectionSlice.concurrentMap(customConcurrency: randomConcurrency) { item in
                     if item == 10 {
                         throw CancellationError()
                     }
@@ -828,6 +839,7 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let key = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             var dictionaryToProcess = [String: Int]()
             for (key, value) in key.enumerated() {
@@ -838,7 +850,7 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
 
             // WHEN
             do {
-                let _ = try await dictionaryToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                let _ = try await dictionaryToProcess.concurrentMap(customConcurrency: randomConcurrency) { item in
                     let newItem = (item.key, item.value * 10)
 
                     if item.value == 10 {
@@ -868,10 +880,12 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess: [Int] = [1, 2, 3, 4, 5]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
-            let result: [Int] = await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { someInt in
-                return someInt + 1
-            }
+            let result: [Int] = await collectionToProcess
+                .concurrentMap(customConcurrency: randomConcurrency) { someInt in
+                    return someInt + 1
+                }
 
             // THEN
             // We check order is preserved
@@ -889,14 +903,16 @@ final class UTConcurrentMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess: [Int?] = [1, nil, 3, 4, nil, 5]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
-            let result: [Int?] = await collectionToProcess.concurrentMap(customConcurrency: self.randomConcurrencyDepth) { someInt in
-                guard let someInt else {
-                    return nil
+            let result: [Int?] = await collectionToProcess
+                .concurrentMap(customConcurrency: randomConcurrency) { someInt in
+                    guard let someInt else {
+                        return nil
+                    }
+
+                    return someInt + 1
                 }
-
-                return someInt + 1
-            }
 
             // THEN
             // We check order is preserved

@@ -544,10 +544,11 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             let result: [Int] = await collectionToProcess
-                .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                     // We arbitrarily remove elements
                     if item % 10 == 0 {
                         return nil
@@ -571,10 +572,11 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
             // GIVEN
             let collectionToProcess = Array(0 ... 200)
             let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 50]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             let result: [Int] = await collectionSlice
-                .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                     // We arbitrarily remove elements
                     if item % 10 == 0 {
                         return nil
@@ -598,6 +600,7 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let key = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             var dictionaryToProcess = [String: Int]()
             for (key, value) in key.enumerated() {
@@ -608,7 +611,7 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
 
             // WHEN
             let result: [(String, Int)] = await dictionaryToProcess
-                .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                     // We arbitrarily remove elements
                     if item.value % 10 == 0 {
                         return nil
@@ -643,11 +646,12 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
                 let result: [Int] = try await collectionToProcess
-                    .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                         // We arbitrarily remove elements
                         if item % 10 == 0 {
                             return nil
@@ -681,11 +685,12 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
             // GIVEN
             let collectionToProcess = Array(0 ... 200)
             let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 50]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
                 let result: [Int] = try await collectionSlice
-                    .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                         // We arbitrarily remove elements
                         if item % 10 == 0 {
                             return nil
@@ -718,6 +723,7 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let key = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             var dictionaryToProcess = [String: Int]()
             for (key, value) in key.enumerated() {
@@ -729,7 +735,7 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
             // WHEN
             do {
                 let result: [(String, Int)] = try await dictionaryToProcess
-                    .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                         // We arbitrarily remove elements
                         if item.value % 10 == 0 {
                             return nil
@@ -772,11 +778,12 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
                 let _: [Int] = try await collectionToProcess
-                    .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                         // We arbitrarily remove elements
                         if item % 3 == 0 {
                             return nil
@@ -808,11 +815,12 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
             let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
                 let _: [Int] = try await collectionSlice
-                    .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                         // We arbitrarily remove elements
                         if item % 3 == 0 {
                             return nil
@@ -843,6 +851,7 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let key = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             var dictionaryToProcess = [String: Int]()
             for (key, value) in key.enumerated() {
@@ -854,7 +863,7 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
             // WHEN
             do {
                 let _: [(String, Int)] = try await dictionaryToProcess
-                    .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                         // We arbitrarily remove elements
                         if item.value % 3 == 0 {
                             return nil
@@ -889,11 +898,12 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
                 let _: [Int] = try await collectionToProcess
-                    .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                         // We arbitrarily remove elements
                         if item % 3 == 0 {
                             return nil
@@ -925,11 +935,12 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
             // GIVEN
             let collectionToProcess = Array(0 ... 50)
             let collectionSlice: ArraySlice<Int> = collectionToProcess[0 ... 10]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             // WHEN
             do {
                 let _: [Int] = try await collectionSlice
-                    .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                         // We arbitrarily remove elements
                         if item % 3 == 0 {
                             return nil
@@ -960,6 +971,7 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let key = Array(0 ... 50)
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             var dictionaryToProcess = [String: Int]()
             for (key, value) in key.enumerated() {
@@ -971,7 +983,7 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
             // WHEN
             do {
                 let _: [(String, Int)] = try await dictionaryToProcess
-                    .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                    .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                         // We arbitrarily remove elements
                         if item.value % 3 == 0 {
                             return nil
@@ -1006,9 +1018,10 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess: [Int?] = [1, nil, 3, 4, nil, 5]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             let result: [Int] = await collectionToProcess
-                .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                     guard let item else {
                         return nil
                     }
@@ -1034,9 +1047,10 @@ final class UTConcurrentCompactMap_CustomConcurrency: XCTestCase {
         asyncTestWrapper {
             // GIVEN
             let collectionToProcess: [Int?] = [1, nil, 3, 4, nil, 5]
+            let randomConcurrency = Self.randomConcurrencyDepth
 
             let result: [Int?] = await collectionToProcess
-                .concurrentCompactMap(customConcurrency: self.randomConcurrencyDepth) { item in
+                .concurrentCompactMap(customConcurrency: randomConcurrency) { item in
                     guard let item else {
                         return nil
                     }
