@@ -22,7 +22,7 @@ public extension Collection where Element: Sendable {
     /// - Parameters:
     ///   - transform: The operation to be applied to the `Collection` of items
     /// - Returns: An ordered processed collection of the desired type.
-    func asyncMap<Input, Output: Sendable>(
+    func asyncMap<Input: Sendable, Output: Sendable>(
         transform: @escaping @Sendable (_ item: Input) async throws -> Output
     ) async rethrows -> [Output] where Element == Input {
         try await concurrentMap(customConcurrency: 1, transform: transform)

@@ -26,7 +26,7 @@ public extension Collection where Element: Sendable {
     /// - Parameters:
     ///   - transform: The operation to be applied to the `Collection` of items
     /// - Returns: An ordered processed collection of the desired type.
-    func concurrentMap<Input, Output: Sendable>(
+    func concurrentMap<Input: Sendable, Output: Sendable>(
         transform: @escaping @Sendable (_ item: Input) async throws -> Output
     ) async rethrows -> [Output] where Element == Input {
         try await concurrentMap(customConcurrency: nil, transform: transform)
@@ -44,7 +44,7 @@ public extension Collection where Element: Sendable {
     ///   - customConcurrency: Set a custom parallelism, 1 is serial.
     ///   - transform: The operation to be applied to the `Collection` of items
     /// - Returns: An ordered processed collection of the desired type.
-    func concurrentMap<Input, Output: Sendable>(
+    func concurrentMap<Input: Sendable, Output: Sendable>(
         customConcurrency: Int?,
         transform: @escaping @Sendable (_ item: Input) async throws -> Output
     ) async rethrows -> [Output] where Element == Input {
