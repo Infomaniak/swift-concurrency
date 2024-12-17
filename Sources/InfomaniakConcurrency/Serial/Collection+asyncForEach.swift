@@ -13,7 +13,6 @@
 
 import Foundation
 
-/// Top level `Collection` extension for a more native look and feel.
 public extension Collection where Element: Sendable {
     /// __Serially__ loops over a `Collection` to perform an async task on each element.
     ///

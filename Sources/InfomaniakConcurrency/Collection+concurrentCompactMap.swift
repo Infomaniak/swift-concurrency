@@ -13,7 +13,6 @@
 
 import Foundation
 
-/// Top level `Collection` extension for a more native look and feel.
 public extension Collection where Element: Sendable {
     /// __Concurrently__ Maps an async task with nullable result, returning only non nil values.
     ///
@@ -48,13 +47,11 @@ public extension Collection where Element: Sendable {
         customConcurrency: Int?,
         transform: @escaping @Sendable (_ item: Input) async throws -> Output?
     ) async rethrows -> [Output] where Element == Input {
-        // Level of concurrency making use of all the cores available
         let optimalConcurrency = bestConcurrency(given: customConcurrency)
 
         // Using an ArrayAccumulator to preserve original collection order.
         let accumulator = ArrayAccumulator(count: count, wrapping: Output.self)
 
-        // Something to enumerate Elements of the collection
         var enumeratedIterator = enumerated().makeIterator()
 
         // Keep only a defined number of Tasks running in parallel with a TaskGroup
