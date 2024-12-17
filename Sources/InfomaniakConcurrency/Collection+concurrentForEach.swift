@@ -14,7 +14,7 @@
 import Foundation
 
 /// Top level `Collection` extension for a more native look and feel.
-public extension Collection {
+public extension Collection where Element: Sendable {
     /// __Concurrently__ loops over a `Collection` to perform an async task on each element.
     ///
     /// Stops and throws at first error encountered.
@@ -42,10 +42,7 @@ public extension Collection {
         customConcurrency: Int?,
         task: @escaping @Sendable (_ element: Element) async throws -> Void
     ) async rethrows {
-        // Level of concurrency making use of all the cores available
         let optimalConcurrency = bestConcurrency(given: customConcurrency)
-
-        // Something to iterate Elements of the collection
         var iterator = makeIterator()
 
         // Keep only a defined number of Tasks running in parallel with a TaskGroup

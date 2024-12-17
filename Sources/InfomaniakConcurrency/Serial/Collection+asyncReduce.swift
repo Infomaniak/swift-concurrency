@@ -13,7 +13,6 @@
 
 import Foundation
 
-/// Top level `Collection` extension for a more native look and feel.
 public extension Collection {
     /// __Serially__ reduce a collection with an async closure
     ///

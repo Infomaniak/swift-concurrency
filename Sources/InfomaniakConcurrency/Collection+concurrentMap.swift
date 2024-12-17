@@ -13,8 +13,7 @@
 
 import Foundation
 
-/// Top level `Collection` extension for a more native look and feel.
-public extension Collection {
+public extension Collection where Element: Sendable {
     /// __Concurrently__ Maps an async task with nullable result.
     ///
     /// Stops and throws at first error encountered.
@@ -26,7 +25,7 @@ public extension Collection {
     /// - Parameters:
     ///   - transform: The operation to be applied to the `Collection` of items
     /// - Returns: An ordered processed collection of the desired type.
-    func concurrentMap<Input, Output>(
+    func concurrentMap<Input: Sendable, Output: Sendable>(
         transform: @escaping @Sendable (_ item: Input) async throws -> Output
     ) async rethrows -> [Output] where Element == Input {
         try await concurrentMap(customConcurrency: nil, transform: transform)
@@ -44,7 +43,7 @@ public extension Collection {
     ///   - customConcurrency: Set a custom parallelism, 1 is serial.
     ///   - transform: The operation to be applied to the `Collection` of items
     /// - Returns: An ordered processed collection of the desired type.
-    func concurrentMap<Input, Output>(
+    func concurrentMap<Input: Sendable, Output: Sendable>(
         customConcurrency: Int?,
         transform: @escaping @Sendable (_ item: Input) async throws -> Output
     ) async rethrows -> [Output] where Element == Input {
