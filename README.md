@@ -59,3 +59,5 @@ An heuristic determines a degree of __parallelism__ for you, but can be customis
 This runs right now in production code, it is now Swift 6 compliant.
 
 This do not use `Task.yield()`. Implement yielding at your own discretion depending on your own workload.
+
+Test CI
