@@ -1,5 +1,8 @@
 name: Dependent Issues
 
+permissions:
+  contents: read
+
 on:
   issues:
     types:
