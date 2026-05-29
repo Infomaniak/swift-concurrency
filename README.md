@@ -2,6 +2,8 @@
 
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FInfomaniak%2Fswift-concurrency%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/Infomaniak/swift-concurrency) [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FInfomaniak%2Fswift-concurrency%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/Infomaniak/swift-concurrency)
 
+🪟 Windows is supported alongside macOS and Linux.
+
 ## Abstract
 
 With Swift's structured concurrency, we can elegantly and seamlessly express correct asynchronous code.
